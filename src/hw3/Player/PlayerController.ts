@@ -23,7 +23,13 @@ import Dead from "./PlayerStates/Dead";
  */
 export const PlayerAnimations = {
     IDLE: "IDLE",
-    WALK: "WALK",
+    RUNNING_LEFT: "RUNNING_LEFT",
+    RUNNING_RIGHT: "RUNNING_RIGHT",
+    ATTACKING_LEFT: "ATTACKING_LEFT",
+    ATTACKING_RIGHT: "ATTACKING_RIGHT",
+    TAKING_DAMAGE: "TAKING_DAMAGE",
+    DYING: "DYING",
+    DEAD: "DEAD",
     JUMP: "JUMP",
 } as const
 
@@ -77,7 +83,7 @@ export default class PlayerController extends StateMachineAI {
         this.speed = 400;
         this.velocity = Vec2.ZERO;
 
-        this.health = 5
+        this.health = 5;
         this.maxHealth = 5;
 
         // Add the different states the player can be in to the PlayerController 
@@ -113,6 +119,9 @@ export default class PlayerController extends StateMachineAI {
             // Start the particle system at the player's current position
             this.weapon.startSystem(500, 0, this.owner.position);
         }
+        if(Input.isPressed(HW3Controls.ATTACK)) {
+            this.owner.animation.play(PlayerAnimations.ATTACKING_LEFT, false, PlayerAnimations.IDLE);
+        }
 
 	}
 
@@ -127,6 +136,7 @@ export default class PlayerController extends StateMachineAI {
         this._maxHealth = maxHealth; 
         // When the health changes, fire an event up to the scene.
         this.emitter.fireEvent(HW3Events.HEALTH_CHANGE, {curhp: this.health, maxhp: this.maxHealth});
+
     }
 
     public get health(): number { return this._health; }
@@ -135,6 +145,8 @@ export default class PlayerController extends StateMachineAI {
         // When the health changes, fire an event up to the scene.
         this.emitter.fireEvent(HW3Events.HEALTH_CHANGE, {curhp: this.health, maxhp: this.maxHealth});
         // If the health hit 0, change the state of the player
-        if (this.health === 0) { this.changeState(PlayerStates.DEAD); }
+        if (this.health === 0) { 
+            this.changeState(PlayerStates.DEAD); 
+        }
     }
 }
